@@ -61,7 +61,7 @@ filter(flights, month == 1, day == 1)
 
  `filter` permite comparaciones (`>, <, ==`), operadores lógicos (`|, &, !, %in%`), preguntar por perdidos (`is.na, is.NaN`)
  
-**filter: ejercicios**
+## filter: ejercicios
  
  Encuentra todos los vuelos que:
  
@@ -80,7 +80,7 @@ arrange(flights, year, month, day)
 arrange(flights, desc(arr_delay))
 ```
 
-**arrange: ejercicios**
+## arrange: ejercicios
  
 ¿Cuáles son los vuelos más cortos?
 ¿Cuáles son los más largos?
@@ -103,7 +103,7 @@ select(flights, -(year:day))
 - `matches("XXX")` trae todos los nombres que continen la cadena de caracteres "XXX"
 - `num_range("x", 1:3)` trae "x1, x2, x3"
 
-**select: ejercicios**
+## select: ejercicios
 
 ¿De cuántas maneras puedo llamar a las variables `dep_time`, `dep_delay`, `arr_time`, `arr_delay`
 
@@ -119,14 +119,14 @@ mutate(flights,
 
 *¿Qué hace esta operación?*
 
-**mutate: ejercicios**
+## mutate: ejercicios
 
 - Compara air_time contra (arr_time - dep_time). *Usa mutate para crear una variable con la resta, después selecciona las variables a comparar.*
   - ¿Qué esperabas encontrar?
   - ¿Hay algo que arreglar?
 
 
-**Dato curioso**
+## Summarise en esteroides: funciones ventana
 
 Hay muchas funciones auxiliares dentro de  `dplyr` que te permiten aprovechar más al verbo `mutate`. Por ejemplo, tiene implementado varias funciones ventana:
 
@@ -143,6 +143,8 @@ Permite colapsar un data frame en una única fila "resumen"
 ```{r}
 summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
 ```
+
+## group_by
 
 Igual que `mutate`, `summarize` es mucho más útil si se piensa en el contexto de grupos, para lo que nos sirve la función `group_by`.
 
