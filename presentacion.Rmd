@@ -686,10 +686,10 @@ limpios. Los datos fueron tomados de datos.gob.mx y el catalogo de estados de IN
 
 ## Material adicional
 
-Liga a libro *en pdf* en el que se basa el taller.
+[Liga a libro *en pdf* en el que se basa el taller.](https://drive.google.com/open?id=0B58pFa0ldIHJaWdMMGh3ZnFCSVk)
 
 
 [Liga a libro *en html* en el que se basa el taller (en desarrollo).](https://htmlpreview.github.io/?https://raw.githubusercontent.com/salimv19/ssR/master/aprendeR/index.html)
 
-Otras recomendaciones>
+[Otras recomendaciones de material utii](https://htmlpreview.github.io/?https://raw.githubusercontent.com/salimv19/ssR/master/aprendeR/material-adicional-3.html)
 
