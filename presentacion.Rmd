@@ -353,7 +353,7 @@ Y entender cómo se traducen en dplyr:
 Ahora, supongamos que queremos saber la velocidad promedio de los aviones que
 tenemos en nuestros datos para todos sus vuelos.
 
-```{r, eval = F}
+```{r}
 # base de aviones con velocidad
 library(nycflights13)
 vel_aviones <- flights %>% 
@@ -370,7 +370,7 @@ inner_join(
 
 Ahora, queremos saber los destinos con mayores retrasos.
 
-```{r, eval = F}
+```{r}
 destinos <- flights %>% 
   group_by(dest) %>%
   summarise(retraso = mean(arr_delay, na.rm = T))
@@ -448,27 +448,30 @@ Su estructura "tidy" o "limpia":
 5 problemas comunes:
 
 1. Los nombres de las columnas son valores, no nombres de variables.
-2. MÃºltiples variables se encuentran en la misma columna.
-3. Las variables estÃ¡n guardadas tanto en filas como en columnas.
+2. Múltiples variables se encuentran en la misma columna.
+3. Las variables están guardadas tanto en filas como en columnas.
 4. Muchos tipos de unidad observacional se encuentran en la misma tabla.
-5. Una sola unidad observacional se guardÃ³ en varias tablas.
+5. Una sola unidad observacional se guarda en varias tablas.
 
 ## Los nombres de las columnas son valores, no nombres de variables
 
-Datos sucio
+Datos sucios
+
 ```{r}
 raw <- filter(who, country == "Mexico", year >= 2000, year < 2011) %>% 
   select(., country, year, contains("sp_m"))
 raw
 ```
 
-Pasamos a datos semi limpios
+Primer paso de limpieza: pasamos los nombres de columnas, a filas (como valores de variables).
 
 ```{r}
 junta <- tidyr::gather(who, key = variables, value = casos
                        , -country, -iso2, -iso3, -year, na.rm = T)
 junta
 ```
+
+La operación realizada se representa:
 
 ![](img/gather.png)
 
@@ -533,4 +536,160 @@ pob <- tibble(
 ## Tu respuesta>
 
 ```
+
+## Las variables están guardadas tanto en filas como en columnas
+
+Datos sucios: mediciones de temperatura mínima y máxima, para distintos días del mes.
+
+```{r, echo=F}
+rm(list = ls())
+source("weather.R")
+
+raw[1:10, 1:10]
+```
+
+Para limpiar, lo primero que debemos hacer es juntar los días (que son valores de la variable día) en una sola columna. Después utilizamos la nueva variable para crear la fecha.
+
+```{r}
+# Tidy
+# Primero, juntamos la variable dias
+clean1 <- tidyr::gather(raw, key = variable, value = value, d1:d31
+                        , na.rm = T)
+
+# Después, generamos la variable día y fecha
+clean1$day <- as.integer(str_replace(clean1$variable, "d", ""))
+clean1$date <- as.Date(ISOdate(clean1$year, clean1$month, clean1$day))
+
+# Seleccionamos las variables limpias y ordenamos
+clean1 <- dplyr::select_(clean1, "id", "date", "element", "value") %>%
+  dplyr::arrange(date, element) 
+
+head(clean1, 10)
+```
+
+
+El segundo paso es transformar la variable `element` en dos columnas pues, en realidad,
+almacena dos variables: temperatura máxima y mínima.
+
+```{r}
+# Las temperaturas van a columnas
+clean2 <- tidyr::spread(clean1, key = element, value = value)
+head(clean2, 10)
+```
+
+En este caso, se utilizó la función `spread` del paquete `tidyr`. Esta función realiza una especie de inverso a la operación que hace `gather`. En lugar de juntar nombres de variables, utiliza los valores de una variable como nombres de columnas (parámetro *key*) y rellena apropiadamente las celdas con los valores de otra variable (parámetro *value*). 
+
+## Muchos tipos de unidad observacional se encuentran en la misma tabla
+
+En ocasiones las bases de datos involucran diferentes tipos de unidad observacional. 
+Para tener datos limpios, cada unidad observacional debe estar almacenada en su propia tabla.
+
+Para este ejemplo, utilizamos la base de datos `billboard`
+
+```{r}
+rm(list = ls())
+billboard <- readr::read_csv("tidyr_datasets/billboard.csv")
+billboard_long <- gather(billboard, week, rank, x1st.week:x76th.week
+                         , na.rm = TRUE)
+billboard_tidy <- billboard_long %>%
+  mutate(
+    week = parse_number(week),
+    date = as.Date(date.entered) + 7 * (week - 1)) %>%
+    select(-date.entered)
+head(billboard_tidy)
+```
+
+
+Debemos separar las unidades observacionales, esto significa separar la 
+base de datos en dos: la tabla *canciones* que almacena artista, 
+nombre de la canción y duración; la tabla *posiciones* que almacena el 
+ranking de la canción en cada semana.
+
+```{r}
+canciones <- billboard_tidy %>% 
+  select(artist.inverted, track, year, time) %>%
+  unique() %>%
+  arrange(artist.inverted) %>%
+  mutate(song_id = row_number(artist.inverted))
+
+head(canciones, 5)
+```
+
+```{r}
+posiciones <- billboard_tidy %>%
+  left_join(canciones, c("artist.inverted", "track", "year", "time")) %>%
+  select(song_id, date, week, rank) %>%
+  arrange(song_id, date) %>%
+  tbl_df
+posiciones
+```
+
+## Una sola unidad observacional se guardó en varias tablas
+
+Es común que los valores sobre una misma unidad observacional estén separados 
+en varios archivos. Muchas veces, cada archivo es una variable, e.g. el mes o
+el nombre del paciente, etc. Para limpiar estos datos debemos:
+
+1. Leemos los archivos en una lista de tablas.
+2. Para cada tabla agregamos una columna que registra el nombre del archivo original.
+3. Combinamos las tablas en un solo dataframe.
+
+La carpeta `tidyr_datasets/specdata` contiene 332 archivos csv que 
+almacenan información de monitoreo de contaminación en 332 ubicaciones de EUA. 
+Cada archivo contiene información de una unidad de monitoreo y 
+el número de identificación del monitor es el nombre del archivo.
+
+Primero creamos un vector con los nombres de los archivos en un directorio con 
+extensión .csv.
+
+```{r}
+rm(list = ls())
+paths <- dir("tidyr_datasets/specdata", pattern = "\\.csv$"
+             , full.names = TRUE)
+names(paths) <- basename(paths)
+
+# Vector con rutas relativas de archivos por leer
+head(paths)
+
+# Leemos todos los archivos y los pegamos
+specdata_US <- tbl_df(ldply(paths, read.csv, stringsAsFactors = FALSE))
+specdata_US %>% head
+```
+
+Las variables quedaron un poco sucias... las limpiamos y seleccionamos solo 
+las de interés.
+
+
+```{r}
+specdata <- specdata_US %>%
+  mutate(
+    monitor = parse_number(.id),
+    date = as.Date(Date)) %>%
+    select(id = ID, monitor, date, sulfate, nitrate)
+specdata %>% head
+```
+
+## Ejercicio Final
+
+En la carpeta `tidyr_datasets/informe` se encuentran dos archivos que
+contienen los datos de la relación del pago de pensiones del IMSS e ISSSTE respecto a su gasto programable devengado por entidad federativa. 
+
+Los datos tienen todos los problemas explorados en esta sección, salvo el que solo hay un tipo de unidad observacional.
+
+Los datos están divididos en los archivos `M2_218.xlsx` y 
+`M2_219.xlsx`.
+
+![](img/ejercicio_tidy_informe.png)
+
+El ejercicio consiste en leer los datos y limpiarlos de forma que sean datos
+limpios. Los datos fueron tomados de datos.gob.mx y el catalogo de estados de INEGI.
+
+## Material adicional
+
+Liga a libro *en pdf* en el que se basa el taller.
+
+
+[Liga a libro *en html* en el que se basa el taller (en desarrollo).](https://htmlpreview.github.io/?https://raw.githubusercontent.com/salimv19/ssR/master/aprendeR/index.html)
+
+Otras recomendaciones>
 
