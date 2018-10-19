@@ -13,19 +13,19 @@ knitr::opts_chunk$set(echo = T, warning = F, error = F, message = F)
 
 ## El Tidyverse
 
-- Colección de paquetes de `R` diseñado para ciencia de datos.
-- Todos los paquetes comparten la misma filosofía de diseño, gramática y estructuras de datos.
-- Para tener la instalación completa: 
+- ColecciÃ³n de paquetes de `R` diseÃ±ado para ciencia de datos.
+- Todos los paquetes comparten la misma filosofÃ­a de diseÃ±o, gramÃ¡tica y estructuras de datos.
+- Para tener la instalaciÃ³n completa: 
 
 ```{r, eval = F}
-install.packages("tidyverse") # colección de paquetes
+install.packages("tidyverse") # colecciÃ³n de paquetes
 
 # Instalen tambien
-install.packages("vcdExtra") # Provee de datasets, métodos y documentación adicionales
+install.packages("vcdExtra") # Provee de datasets, mÃ©todos y documentaciÃ³n adicionales
 install.packages("nycflights13") # Provee los datos que usaremos en ejemplos y ejercicios
 ```
 
-## El ciclo de análisis de datos
+## El ciclo de anÃ¡lisis de datos
 
 Wickham, H y Grolemund G. [*R for Data Science*](http://r4ds.had.co.nz/explore-intro.html)
 
@@ -39,11 +39,11 @@ Wickham, H y Grolemund G. [*R for Data Science*](http://r4ds.had.co.nz/explore-i
 
 ![](img/ciclo_paquetes_enfoque.png)
 
-## Los verbos básicos en `dplyr`
+## Los verbos bÃ¡sicos en `dplyr`
 
 ![](img/verbos_basicos.png)
 
-## Los verbos básicos en acción (saquen su compu)
+## Los verbos bÃ¡sicos en acciÃ³n (saquen su compu)
 
 ```{r}
 library(nycflights13)
@@ -62,21 +62,21 @@ flights
 filter(flights, month == 1, day == 1)
 ```
 
- `filter` permite comparaciones (`>, <, ==`), operadores lógicos (`|, &, !, %in%`), preguntar por perdidos (`is.na, is.NaN`)
+ `filter` permite comparaciones (`>, <, ==`), operadores lÃ³gicos (`|, &, !, %in%`), preguntar por perdidos (`is.na, is.NaN`)
  
 ## filter: ejercicios
  
  Encuentra todos los vuelos que:
  
- - Se retrasan más de 2 horas
+ - Se retrasan mÃ¡s de 2 horas
  - Salen en verano (Junio, Julio, Agosto)
  - Salen en invierno (Diciembre, Enero, Febrero)
- - ¿Son muy diferentes en -volúmen de vuelos- ambas estaciones?
- - ¿Cuántos vuelos tienen valores perdidos en `dep_time`?
+ - Â¿Son muy diferentes en -volÃºmen de vuelos- ambas estaciones?
+ - Â¿CuÃ¡ntos vuelos tienen valores perdidos en `dep_time`?
  
 ## distinct
 
-Para eliminar duplicados, usamos la función `distinct` 
+Para eliminar duplicados, usamos la funciÃ³n `distinct` 
 
 ```{r}
 flights.dup <- bind_rows(flights, flights)
@@ -89,9 +89,9 @@ rm(flights.dup)
 
 En ocasiones necesitamos extraer subconjuntos aleatorios de los datos, para ello podemos especificar:
 
-- el número de renglones que necesitamos (usando `sample_n`);
+- el nÃºmero de renglones que necesitamos (usando `sample_n`);
 - el porcentaje de datos que deseamos (usando `sample_frac`);
-- las posiciones específicas de los datos que queremos (usando `slice`).
+- las posiciones especÃ­ficas de los datos que queremos (usando `slice`).
 
 ```{r}
 set.seed(1099) 
@@ -105,7 +105,7 @@ slice(flights, 100:110)
 
 ## arrange
 
-Arrange te permite ordenar un conjunto de datos según una o más variables en forma ascendente y descendiente.
+Arrange te permite ordenar un conjunto de datos segÃºn una o mÃ¡s variables en forma ascendente y descendiente.
  
 ```{r}
 arrange(flights, year, month, day)
@@ -114,12 +114,12 @@ arrange(flights, desc(arr_delay))
 
 ## arrange: ejercicios
  
-- ¿Cuáles son los vuelos más cortos?
-- ¿Cuáles son los más largos?
+- Â¿CuÃ¡les son los vuelos mÃ¡s cortos?
+- Â¿CuÃ¡les son los mÃ¡s largos?
 
 ## top_n
 
-`dplyr` está lleno de funciones que particularizan a los verbos más sencillos. El ejercicio anterior, lo podemos obtener más fácilmente con la función `top_n`
+`dplyr` estÃ¡ lleno de funciones que particularizan a los verbos mÃ¡s sencillos. El ejercicio anterior, lo podemos obtener mÃ¡s fÃ¡cilmente con la funciÃ³n `top_n`
 
 Por ejemplo, los 5 vuelos con mayor retraso de salida:
 
@@ -143,7 +143,7 @@ select(flights, year:day)
 select(flights, -(year:day))
 ```
 
-`select` tiene funciones que te permiten aprovecharlo más:
+`select` tiene funciones que te permiten aprovecharlo mÃ¡s:
 
 - `starts_with("XXX")` trae todos los nombres que empiezan con "XXX"
 - `ends_with("XXX")` trae todos los nombres que terminan con "XXX"
@@ -153,7 +153,7 @@ select(flights, -(year:day))
 
 ## select: ejercicios
 
-¿De cuántas maneras puedo llamar a las variables `dep_time`, `dep_delay`, `arr_time`, `arr_delay`?
+Â¿De cuÃ¡ntas maneras puedo llamar a las variables `dep_time`, `dep_delay`, `arr_time`, `arr_delay`?
 
 ## mutate
 
@@ -165,28 +165,28 @@ mutate(flights,
        )
 ```
 
-*¿Qué hace esta operación?*
+*Â¿QuÃ© hace esta operaciÃ³n?*
 
 ## mutate: ejercicios
 
-- Compara air_time contra (arr_time - dep_time). (Tip: *Usa mutate para crear una variable con la resta, después selecciona las variables a comparar.*)
-  - ¿Qué esperabas encontrar?
-  - ¿Hay algo que arreglar?
+- Compara air_time contra (arr_time - dep_time). (Tip: *Usa mutate para crear una variable con la resta, despuÃ©s selecciona las variables a comparar.*)
+  - Â¿QuÃ© esperabas encontrar?
+  - Â¿Hay algo que arreglar?
 
 
 ## mutate en esteroides: funciones ventana
 
-Hay muchas funciones auxiliares dentro de  `dplyr` que te permiten aprovechar más al verbo `mutate`. Por ejemplo, tiene implementado varias funciones ventana:
+Hay muchas funciones auxiliares dentro de  `dplyr` que te permiten aprovechar mÃ¡s al verbo `mutate`. Por ejemplo, tiene implementado varias funciones ventana:
 
 ![](img/window_functions.png)
 
-Estas funciones son mucho más útiles en *grupos* (ahí viene).
+Estas funciones son mucho mÃ¡s Ãºtiles en *grupos* (ahÃ­ viene).
 
 Fuente: [Data wrangling cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
 
 ## summarise
 
-Permite colapsar un data frame en una única fila "resumen"
+Permite colapsar un data frame en una Ãºnica fila "resumen"
 
 ```{r}
 summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
@@ -194,22 +194,22 @@ summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
 
 ## summarise: ejercicio
 
-Utiliza la función `summarise` para calcular la media de las variables `date`, `dep_delay`, `arr_delay`.
+Utiliza la funciÃ³n `summarise` para calcular la media de las variables `date`, `dep_delay`, `arr_delay`.
 
 ## summarise_if
 
 El ejercicio anterior es engorroso. Podemos simplificarlo.
 
-Podemos especificar una función a aplicar a variables específicas en un
-dataframe. Por ejemplo, extraer la media para las variables numéricas.
+Podemos especificar una funciÃ³n a aplicar a variables especÃ­ficas en un
+dataframe. Por ejemplo, extraer la media para las variables numÃ©ricas.
 
 ```{r}
 summarise_if(flights, is.numeric, mean, na.rm = TRUE)
 ```
 
-## summarise en esteroides: funciones de agregación
+## summarise en esteroides: funciones de agregaciÃ³n
 
-También se encuentran implementadas funciones de agregaciones muy comunes:
+TambiÃ©n se encuentran implementadas funciones de agregaciones muy comunes:
 
 ![](img/agg_functions.PNG)
 
@@ -218,7 +218,7 @@ Fuente: [Data wrangling cheatsheet](https://www.rstudio.com/wp-content/uploads/2
 
 ## group_by
 
-Igual que `mutate`, `summarise` es mucho más útil si se piensa en el contexto de grupos, para lo que nos sirve la función `group_by`.
+Igual que `mutate`, `summarise` es mucho mÃ¡s Ãºtil si se piensa en el contexto de grupos, para lo que nos sirve la funciÃ³n `group_by`.
 
 ```{r}
 flights_agrupada <- group_by(flights, year, month, day)
@@ -226,7 +226,7 @@ class(flights_agrupada)
 flights_agrupada
 ```
 
-Ahora si, puedo generar resumenes útiles por día. Por ejemplo, el retraso promedio por día:
+Ahora si, puedo generar resumenes Ãºtiles por dÃ­a. Por ejemplo, el retraso promedio por dÃ­a:
 
 ```{r}
 summarise(flights_agrupada, delay = mean(dep_delay, na.rm = TRUE))
@@ -239,15 +239,15 @@ summarise(flights_agrupada, delay = mean(dep_delay, na.rm = TRUE))
 
 ## group_by: ejercicios
 
-- Utiliza la función `top_n`, junto con `group_by`, `arrange` y `summarise` para extraer los 10 aviones por aerolínea con el menor promedio de velocidad.
-- ¿Cuáles son los aeropuertos con mayor promedio de retraso en la salida?
-- ¿Cuáles son los aeropuertos con mayor promedio de retraso en las llegadas?
+- Utiliza la funciÃ³n `top_n`, junto con `group_by`, `arrange` y `summarise` para extraer los 10 aviones por aerolÃ­nea con el menor promedio de velocidad.
+- Â¿CuÃ¡les son los aeropuertos con mayor promedio de retraso en la salida?
+- Â¿CuÃ¡les son los aeropuertos con mayor promedio de retraso en las llegadas?
 
 ## %>%
 
-Un verbo solo no es demasiado útil. Lo poderoso de los verbos es utilizarlos en conjunto. Para ello, ayuda mucho utilizar el operador *pipe*.
+Un verbo solo no es demasiado Ãºtil. Lo poderoso de los verbos es utilizarlos en conjunto. Para ello, ayuda mucho utilizar el operador *pipe*.
 
-Por ejemplo, puedo encontrar los peores días en retrasos.
+Por ejemplo, puedo encontrar los peores dÃ­as en retrasos.
 
 ```{r}
 select(flights, 
@@ -264,7 +264,7 @@ select(flights,
   filter(rank(desc(arr_delay)) < 10)
 ```
 
-o los destinos más populares
+o los destinos mÃ¡s populares
 
 ```{r}
 flights %>% 
@@ -274,10 +274,10 @@ flights %>%
 
 ## %>%: ejercicios
 
-1. ¿Cuál es la hora óptima para viajar para evitar retrasos?
-2. Encuentra todos los destinos que vuelan por más de una aerolínea. ¿Cuál es la mejor aerolínea en ese subgrupo?
-3. ¿Cuáles son los 10 aviones-aerolíneas mas lentos? Utiliza el operador pipe, mutate, arrange y head.
-4. Utiliza la función `str_sub` dentro de `stringr` para extraer únicamente el día del campo `date`.
+1. Â¿CuÃ¡l es la hora Ã³ptima para viajar para evitar retrasos?
+2. Encuentra todos los destinos que vuelan por mÃ¡s de una aerolÃ­nea. Â¿CuÃ¡l es la mejor aerolÃ­nea en ese subgrupo?
+3. Â¿CuÃ¡les son los 10 aviones-aerolÃ­neas mas lentos? Utiliza el operador pipe, mutate, arrange y head.
+4. Utiliza la funciÃ³n `str_sub` dentro de `stringr` para extraer Ãºnicamente el dÃ­a del campo `date`.
 5.  Utiliza la funcion `ymd` del paquete `lubridate` para declarar date como una fecha.
 6. Utiliza las funciones `paste0` del `base` y `ymd_hm` de `lubridate` para
 declarar date como un `datetime`.
@@ -318,11 +318,11 @@ mutate(flights,
 
 ## joins: preliminares
 
-- ¿Qué pasa si lo que quiero es saber cómo se ven afectados los retrasos por el clima?
-- ¿O como afecta el tipo de avión y su edad a la velocidad promedio?
-- ¿O si hay aeropuertos que están muy saturados e, independientemente del clima o el destino, siempre tienen retrasos?
+- Â¿QuÃ© pasa si lo que quiero es saber cÃ³mo se ven afectados los retrasos por el clima?
+- Â¿O como afecta el tipo de aviÃ³n y su edad a la velocidad promedio?
+- Â¿O si hay aeropuertos que estÃ¡n muy saturados e, independientemente del clima o el destino, siempre tienen retrasos?
 
-Para ello, debo juntar información de otras de las bases que están en el paquete `nycflights13`.
+Para ello, debo juntar informaciÃ³n de otras de las bases que estÃ¡n en el paquete `nycflights13`.
 
 ## joins: preliminares
 
@@ -332,7 +332,7 @@ Recordemos las tablas en el paquete:
 datasets("nycflights13")
 ```
 
-El modelo de relación de las tablas se ve como sigue:
+El modelo de relaciÃ³n de las tablas se ve como sigue:
 
 ![](img/modelo_relacional.PNG)
 
@@ -344,7 +344,7 @@ Podemos pensar en los joins que se realizan en SQL>
 
 ## joins: dplyr
 
-Y entender cómo se traducen en dplyr:
+Y entender cÃ³mo se traducen en dplyr:
 
 ![](img/dplyr_joins.PNG)
 
@@ -384,9 +384,9 @@ inner_join(
 ```
 
 
-## joins: ejemplo con graficación
+## joins: ejemplo con graficaciÃ³n
 
-Esto nos permite contestar preguntas aún más poderosas. Por ejemplo, podemos calcular el promedio de retrasos por destinos, juntar esa información con los datos de aeropuertos para dibujar la distribución espacial de los retrasos.
+Esto nos permite contestar preguntas aÃºn mÃ¡s poderosas. Por ejemplo, podemos calcular el promedio de retrasos por destinos, juntar esa informaciÃ³n con los datos de aeropuertos para dibujar la distribuciÃ³n espacial de los retrasos.
 
 ```{r}
 airports %>%
@@ -397,7 +397,7 @@ airports %>%
     coord_quickmap()
 ```
 
-Para más ejemplos como estos, revisa el capítulo de "[Relational data](http://r4ds.had.co.nz/relational-data.html)" en *R for data science*. 
+Para mÃ¡s ejemplos como estos, revisa el capÃ­tulo de "[Relational data](http://r4ds.had.co.nz/relational-data.html)" en *R for data science*. 
 
 ## Datos limpios
 
@@ -440,7 +440,7 @@ Su estructura "tidy" o "limpia":
 - Crea un dataframe con los valores de la tabla 1 y otro con los valores de la tabla 3.
 - Extrae el resultado para (John Smith, tratamiento a) en la primera configuracion y en la segunda.
 - Especifica el numero de tratamientos con la forma sucia y la forma limpia.
-- ¿Cual es la media de los resultados? Usa la forma 1 y la forma 2.
+- Â¿Cual es la media de los resultados? Usa la forma 1 y la forma 2.
 - Extrae los tratamientos del tipo a en la forma 2.
 
 ## De sucio a limpio
@@ -448,8 +448,8 @@ Su estructura "tidy" o "limpia":
 5 problemas comunes:
 
 1. Los nombres de las columnas son valores, no nombres de variables.
-2. Múltiples variables se encuentran en la misma columna.
-3. Las variables están guardadas tanto en filas como en columnas.
+2. MÃºltiples variables se encuentran en la misma columna.
+3. Las variables estÃ¡n guardadas tanto en filas como en columnas.
 4. Muchos tipos de unidad observacional se encuentran en la misma tabla.
 5. Una sola unidad observacional se guarda en varias tablas.
 
@@ -471,11 +471,11 @@ junta <- tidyr::gather(who, key = variables, value = casos
 junta
 ```
 
-La operación realizada se representa:
+La operaciÃ³n realizada se representa:
 
 ![](img/gather.png)
 
-## Múltiples variables se encuentran en la misma columna
+## MÃºltiples variables se encuentran en la misma columna
 
 Los datos "juntados" anteriormente, ahora los limpiamos, separando las columnas en distintas variables. 
 
@@ -505,17 +505,17 @@ limpios %>%
 
 ```
 
-Esta forma es limpia pues cada columna es una variable, cada fila es una observación
+Esta forma es limpia pues cada columna es una variable, cada fila es una observaciÃ³n
 y no se mezclan unidades observacionales.
 
 ## gather: ejercicio
 
-A continuación se crea el dataframe *pob* que contiene un identificador
+A continuaciÃ³n se crea el dataframe *pob* que contiene un identificador
 para el individuo (id) y una columna llamada *variables* que contiene
-el sexo, año de nacimiento y la altura en centímetros todos en una columna y
+el sexo, aÃ±o de nacimiento y la altura en centÃ­metros todos en una columna y
 separados por _
 
-Utiliza la función *separate* del paquete *tidyr* para limpiar
+Utiliza la funciÃ³n *separate* del paquete *tidyr* para limpiar
 estos datos.
 
 ```{r, eval = F}
@@ -537,9 +537,9 @@ pob <- tibble(
 
 ```
 
-## Las variables están guardadas tanto en filas como en columnas
+## Las variables estÃ¡n guardadas tanto en filas como en columnas
 
-Datos sucios: mediciones de temperatura mínima y máxima, para distintos días del mes.
+Datos sucios: mediciones de temperatura mÃ­nima y mÃ¡xima, para distintos dÃ­as del mes.
 
 ```{r, echo=F}
 rm(list = ls())
@@ -548,7 +548,7 @@ source("weather.R")
 raw[1:10, 1:10]
 ```
 
-Para limpiar, lo primero que debemos hacer es juntar los días (que son valores de la variable día) en una sola columna. Después utilizamos la nueva variable para crear la fecha.
+Para limpiar, lo primero que debemos hacer es juntar los dÃ­as (que son valores de la variable dÃ­a) en una sola columna. DespuÃ©s utilizamos la nueva variable para crear la fecha.
 
 ```{r}
 # Tidy
@@ -556,7 +556,7 @@ Para limpiar, lo primero que debemos hacer es juntar los días (que son valores d
 clean1 <- tidyr::gather(raw, key = variable, value = value, d1:d31
                         , na.rm = T)
 
-# Después, generamos la variable día y fecha
+# DespuÃ©s, generamos la variable dÃ­a y fecha
 clean1$day <- as.integer(str_replace(clean1$variable, "d", ""))
 clean1$date <- as.Date(ISOdate(clean1$year, clean1$month, clean1$day))
 
@@ -569,7 +569,7 @@ head(clean1, 10)
 
 
 El segundo paso es transformar la variable `element` en dos columnas pues, en realidad,
-almacena dos variables: temperatura máxima y mínima.
+almacena dos variables: temperatura mÃ¡xima y mÃ­nima.
 
 ```{r}
 # Las temperaturas van a columnas
@@ -577,7 +577,7 @@ clean2 <- tidyr::spread(clean1, key = element, value = value)
 head(clean2, 10)
 ```
 
-En este caso, se utilizó la función `spread` del paquete `tidyr`. Esta función realiza una especie de inverso a la operación que hace `gather`. En lugar de juntar nombres de variables, utiliza los valores de una variable como nombres de columnas (parámetro *key*) y rellena apropiadamente las celdas con los valores de otra variable (parámetro *value*). 
+En este caso, se utilizÃ³ la funciÃ³n `spread` del paquete `tidyr`. Esta funciÃ³n realiza una especie de inverso a la operaciÃ³n que hace `gather`. En lugar de juntar nombres de variables, utiliza los valores de una variable como nombres de columnas (parÃ¡metro *key*) y rellena apropiadamente las celdas con los valores de otra variable (parÃ¡metro *value*). 
 
 ## Muchos tipos de unidad observacional se encuentran en la misma tabla
 
@@ -602,8 +602,8 @@ head(billboard_tidy)
 
 Debemos separar las unidades observacionales, esto significa separar la 
 base de datos en dos: la tabla *canciones* que almacena artista, 
-nombre de la canción y duración; la tabla *posiciones* que almacena el 
-ranking de la canción en cada semana.
+nombre de la canciÃ³n y duraciÃ³n; la tabla *posiciones* que almacena el 
+ranking de la canciÃ³n en cada semana.
 
 ```{r}
 canciones <- billboard_tidy %>% 
@@ -624,9 +624,9 @@ posiciones <- billboard_tidy %>%
 posiciones
 ```
 
-## Una sola unidad observacional se guardó en varias tablas
+## Una sola unidad observacional se guardÃ³ en varias tablas
 
-Es común que los valores sobre una misma unidad observacional estén separados 
+Es comÃºn que los valores sobre una misma unidad observacional estÃ©n separados 
 en varios archivos. Muchas veces, cada archivo es una variable, e.g. el mes o
 el nombre del paciente, etc. Para limpiar estos datos debemos:
 
@@ -635,12 +635,12 @@ el nombre del paciente, etc. Para limpiar estos datos debemos:
 3. Combinamos las tablas en un solo dataframe.
 
 La carpeta `tidyr_datasets/specdata` contiene 332 archivos csv que 
-almacenan información de monitoreo de contaminación en 332 ubicaciones de EUA. 
-Cada archivo contiene información de una unidad de monitoreo y 
-el número de identificación del monitor es el nombre del archivo.
+almacenan informaciÃ³n de monitoreo de contaminaciÃ³n en 332 ubicaciones de EUA. 
+Cada archivo contiene informaciÃ³n de una unidad de monitoreo y 
+el nÃºmero de identificaciÃ³n del monitor es el nombre del archivo.
 
 Primero creamos un vector con los nombres de los archivos en un directorio con 
-extensión .csv.
+extensiÃ³n .csv.
 
 ```{r}
 rm(list = ls())
@@ -657,7 +657,7 @@ specdata_US %>% head
 ```
 
 Las variables quedaron un poco sucias... las limpiamos y seleccionamos solo 
-las de interés.
+las de interÃ©s.
 
 
 ```{r}
@@ -672,11 +672,11 @@ specdata %>% head
 ## Ejercicio Final
 
 En la carpeta `tidyr_datasets/informe` se encuentran dos archivos que
-contienen los datos de la relación del pago de pensiones del IMSS e ISSSTE respecto a su gasto programable devengado por entidad federativa. 
+contienen los datos de la relaciÃ³n del pago de pensiones del IMSS e ISSSTE respecto a su gasto programable devengado por entidad federativa. 
 
-Los datos tienen todos los problemas explorados en esta sección, salvo el que solo hay un tipo de unidad observacional.
+Los datos tienen todos los problemas explorados en esta secciÃ³n, salvo el que solo hay un tipo de unidad observacional.
 
-Los datos están divididos en los archivos `M2_218.xlsx` y 
+Los datos estÃ¡n divididos en los archivos `M2_218.xlsx` y 
 `M2_219.xlsx`.
 
 ![](img/ejercicio_tidy_informe.png)
