@@ -452,3 +452,85 @@ Su estructura "tidy" o "limpia":
 3. Las variables estÃ¡n guardadas tanto en filas como en columnas.
 4. Muchos tipos de unidad observacional se encuentran en la misma tabla.
 5. Una sola unidad observacional se guardÃ³ en varias tablas.
+
+## Los nombres de las columnas son valores, no nombres de variables
+
+Datos sucio
+```{r}
+raw <- filter(who, country == "Mexico", year >= 2000, year < 2011) %>% 
+  select(., country, year, contains("sp_m"))
+raw
+```
+
+Pasamos a datos semi limpios
+
+```{r}
+junta <- tidyr::gather(who, key = variables, value = casos
+                       , -country, -iso2, -iso3, -year, na.rm = T)
+junta
+```
+
+![](img/gather.png)
+
+## Múltiples variables se encuentran en la misma columna
+
+Los datos "juntados" anteriormente, ahora los limpiamos, separando las columnas en distintas variables. 
+
+```{r}
+limpios <- junta %>%
+  mutate(variables = gsub("new_|new", "", variables)) %>%
+  tidyr::extract(., col = variables
+          , into = c("diagnostico", "genero", "edad")
+          , regex = "([[:alnum:]]+)_([a-z])([[0-9]]+)") 
+
+limpios
+
+```
+
+Limpiamos las categorias de edad
+
+```{r}
+limpios %>%
+  mutate(
+    edad = factor(edad, 
+                  levels = c("014", "1524", "2534", "3544"
+                             , "4554", "5564", "65")
+                  , labels = c("0-14", "15-24", "25-34", "35-44"
+                               , "45-54", "55-64", "65>")
+                  , ordered = T)
+  )
+
+```
+
+Esta forma es limpia pues cada columna es una variable, cada fila es una observación
+y no se mezclan unidades observacionales.
+
+## gather: ejercicio
+
+A continuación se crea el dataframe *pob* que contiene un identificador
+para el individuo (id) y una columna llamada *variables* que contiene
+el sexo, año de nacimiento y la altura en centímetros todos en una columna y
+separados por _
+
+Utiliza la función *separate* del paquete *tidyr* para limpiar
+estos datos.
+
+```{r, eval = F}
+# Respuestas
+# Generamos los datos
+pob <- tibble(
+  id = 1:1000
+  , variables = paste0(
+    sample(x = c('f', 'm'), size = 1000, replace = T)
+    , "_"
+    , floor(runif(1000, 45, 99))
+    , "_"
+    , floor(runif(1000, 50, 190))
+  )
+)
+
+
+## Tu respuesta>
+
+```
+
