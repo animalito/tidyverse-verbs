@@ -13,16 +13,16 @@ knitr::opts_chunk$set(echo = T, warning = F, error = F, message = F)
 
 ## El Tidyverse
 
-- Colección de paquetes de `R` diseñdo para ciencia de datos.
+- Colección de paquetes de `R` diseñado para ciencia de datos.
 - Todos los paquetes comparten la misma filosofía de diseño, gramática y estructuras de datos.
 - Para tener la instalación completa: 
 
 ```{r, eval = F}
-install.packages("tidyverse")
+install.packages("tidyverse") # colección de paquetes
 
 # Instalen tambien
-install.packages("vcdExtra")
-install.packages("nycflights13")
+install.packages("vcdExtra") # Provee de datasets, métodos y documentación adicionales
+install.packages("nycflights13") # Provee los datos que usaremos en ejemplos y ejercicios
 ```
 
 ## El ciclo de análisis de datos
@@ -49,7 +49,10 @@ Wickham, H y Grolemund G. [*R for Data Science*](http://r4ds.had.co.nz/explore-i
 library(nycflights13)
 library(vcdExtra)
 library(tidyverse)
+# Tablas con datos para ejercicios
 datasets("nycflights13")
+
+# Tabla para los ejercicios iniciales
 flights
 ```
 
@@ -71,6 +74,35 @@ filter(flights, month == 1, day == 1)
  - ¿Son muy diferentes en -volúmen de vuelos- ambas estaciones?
  - ¿Cuántos vuelos tienen valores perdidos en `dep_time`?
  
+## distinct
+
+Para eliminar duplicados, usamos la función `distinct` 
+
+```{r}
+flights.dup <- bind_rows(flights, flights)
+dim(flights.dup)
+dim(distinct(flights.dup))
+rm(flights.dup)
+```
+
+## sample_n, sample_frac, slice
+
+En ocasiones necesitamos extraer subconjuntos aleatorios de los datos, para ello podemos especificar:
+
+- el número de renglones que necesitamos (usando `sample_n`);
+- el porcentaje de datos que deseamos (usando `sample_frac`);
+- las posiciones específicas de los datos que queremos (usando `slice`).
+
+```{r}
+set.seed(1099) 
+# extraemos 10 datos en forma aleatoria
+sample_n(flights, size = 10)
+# Extraemos el 1% de los datos de flights
+sample_frac(flights, size = 0.01)
+# extraemos las posiciones 100 a 110
+slice(flights, 100:110)
+```
+
 ## arrange
 
 Arrange te permite ordenar un conjunto de datos según una o más variables en forma ascendente y descendiente.
@@ -82,8 +114,24 @@ arrange(flights, desc(arr_delay))
 
 ## arrange: ejercicios
  
-¿Cuáles son los vuelos más cortos?
-¿Cuáles son los más largos?
+- ¿Cuáles son los vuelos más cortos?
+- ¿Cuáles son los más largos?
+
+## top_n
+
+`dplyr` está lleno de funciones que particularizan a los verbos más sencillos. El ejercicio anterior, lo podemos obtener más fácilmente con la función `top_n`
+
+Por ejemplo, los 5 vuelos con mayor retraso de salida:
+
+```{r}
+top_n(flights, 5, dep_delay)
+```
+
+O con el menor retraso de salida:
+
+```{r}
+top_n(flights, 5, desc(dep_delay))
+```
 
 ## select
 
@@ -105,7 +153,7 @@ select(flights, -(year:day))
 
 ## select: ejercicios
 
-¿De cuántas maneras puedo llamar a las variables `dep_time`, `dep_delay`, `arr_time`, `arr_delay`
+¿De cuántas maneras puedo llamar a las variables `dep_time`, `dep_delay`, `arr_time`, `arr_delay`?
 
 ## mutate
 
@@ -121,12 +169,12 @@ mutate(flights,
 
 ## mutate: ejercicios
 
-- Compara air_time contra (arr_time - dep_time). *Usa mutate para crear una variable con la resta, después selecciona las variables a comparar.*
+- Compara air_time contra (arr_time - dep_time). (Tip: *Usa mutate para crear una variable con la resta, después selecciona las variables a comparar.*)
   - ¿Qué esperabas encontrar?
   - ¿Hay algo que arreglar?
 
 
-## Summarise en esteroides: funciones ventana
+## mutate en esteroides: funciones ventana
 
 Hay muchas funciones auxiliares dentro de  `dplyr` que te permiten aprovechar más al verbo `mutate`. Por ejemplo, tiene implementado varias funciones ventana:
 
@@ -144,9 +192,33 @@ Permite colapsar un data frame en una única fila "resumen"
 summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
 ```
 
+## summarise: ejercicio
+
+Utiliza la función `summarise` para calcular la media de las variables `date`, `dep_delay`, `arr_delay`.
+
+## summarise_if
+
+El ejercicio anterior es engorroso. Podemos simplificarlo.
+
+Podemos especificar una función a aplicar a variables específicas en un
+dataframe. Por ejemplo, extraer la media para las variables numéricas.
+
+```{r}
+summarise_if(flights, is.numeric, mean, na.rm = TRUE)
+```
+
+## summarise en esteroides: funciones de agregación
+
+También se encuentran implementadas funciones de agregaciones muy comunes:
+
+![](img/agg_functions.PNG)
+
+Fuente: [Data wrangling cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+
+
 ## group_by
 
-Igual que `mutate`, `summarize` es mucho más útil si se piensa en el contexto de grupos, para lo que nos sirve la función `group_by`.
+Igual que `mutate`, `summarise` es mucho más útil si se piensa en el contexto de grupos, para lo que nos sirve la función `group_by`.
 
 ```{r}
 flights_agrupada <- group_by(flights, year, month, day)
@@ -160,17 +232,16 @@ Ahora si, puedo generar resumenes útiles por día. Por ejemplo, el retraso promed
 summarise(flights_agrupada, delay = mean(dep_delay, na.rm = TRUE))
 ```
 
-**Dato curioso**
-
-También se encuentran implementadas funciones de agregaciones muy comunes:
-
-![](img/agg_functions.PNG)
-
-Fuente: [Data wrangling cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
-
 ## Los verbos y el group_by
 
 ![](img/verbos_agrupados.PNG)
+
+
+## group_by: ejercicios
+
+- Utiliza la función `top_n`, junto con `group_by`, `arrange` y `summarise` para extraer los 10 aviones por aerolínea con el menor promedio de velocidad.
+- ¿Cuáles son los aeropuertos con mayor promedio de retraso en la salida?
+- ¿Cuáles son los aeropuertos con mayor promedio de retraso en las llegadas?
 
 ## %>%
 
@@ -201,19 +272,59 @@ flights %>%
   filter(n() > 365)
 ```
 
+## %>%: ejercicios
 
-**%>%: ejercicios**
+1. ¿Cuál es la hora óptima para viajar para evitar retrasos?
+2. Encuentra todos los destinos que vuelan por más de una aerolínea. ¿Cuál es la mejor aerolínea en ese subgrupo?
+3. ¿Cuáles son los 10 aviones-aerolíneas mas lentos? Utiliza el operador pipe, mutate, arrange y head.
+4. Utiliza la función `str_sub` dentro de `stringr` para extraer únicamente el día del campo `date`.
+5.  Utiliza la funcion `ymd` del paquete `lubridate` para declarar date como una fecha.
+6. Utiliza las funciones `paste0` del `base` y `ymd_hm` de `lubridate` para
+declarar date como un `datetime`.
 
-- ¿Cuál es la hora óptima para viajar para evitar retrasos?
-- Encuentra todos los destinos que vuelan por más de una aerolínea. ¿Cuál es la mejor aerolínea en ese subgrupo?
+```{r, eval = F, echo = F}
+# Respuestas *ultimas()
 
-## Joins
+#3
+mutate(flights, velocidad = dist/time) %>%
+    arrange(velocidad) %>%
+    head(10) %>%
+    select(plane, carrier, velocidad)
+
+# o bien
+mutate(flights, velocidad = dist/time) %>%
+    group_by(carrier) %>%
+    arrange(velocidad) %>%
+    top_n(1) %>%
+    select(plane, carrier, velocidad)
+
+#4
+mutate(flights, dia = stringr::str_sub(date, 9, 10)) %>%
+    select(date, dia)
+head(flights)
+
+# 5
+mutate(flights,
+       fecha = stringr::str_sub(date, 1, 10)
+       , fecha = lubridate::ymd(fecha)) %>%
+    select(date, fecha)
+
+# 6
+mutate(flights,
+       fecha = lubridate::ymd_hms(date)) %>%
+    select(date, fecha)
+
+```
+
+## joins: preliminares
 
 - ¿Qué pasa si lo que quiero es saber cómo se ven afectados los retrasos por el clima?
 - ¿O como afecta el tipo de avión y su edad a la velocidad promedio?
 - ¿O si hay aeropuertos que están muy saturados e, independientemente del clima o el destino, siempre tienen retrasos?
 
-Para ello, debo juntar información de otras de las bases que están en el paquete nycflights13.
+Para ello, debo juntar información de otras de las bases que están en el paquete `nycflights13`.
+
+## joins: preliminares
 
 Recordemos las tablas en el paquete:
 
@@ -225,17 +336,55 @@ El modelo de relación de las tablas se ve como sigue:
 
 ![](img/modelo_relacional.PNG)
 
-Aunque sale del scope por lo corto del taller, conviene saber que exixsten los *joins* en `dplyr`.
+## joins: SQL
 
 Podemos pensar en los joins que se realizan en SQL>
 
 ![](img/sql_joins.PNG)
 
+## joins: dplyr
+
 Y entender cómo se traducen en dplyr:
 
 ![](img/dplyr_joins.PNG)
 
-**joins: ejemplo**
+## joins: ejemplo sencillo
+
+Ahora, supongamos que queremos saber la velocidad promedio de los aviones que
+tenemos en nuestros datos para todos sus vuelos.
+
+```{r, eval = F}
+# base de aviones con velocidad
+library(nycflights13)
+vel_aviones <- flights %>% 
+  group_by(tailnum) %>% # identificador de avion
+  summarise(vel_prom = mean(distance/air_time, na.rm = T))
+  
+inner_join(
+  planes,
+  vel_aviones
+)  %>%
+  select(tailnum, year, vel_prom) %>%
+  arrange(desc(vel_prom))
+```
+
+Ahora, queremos saber los destinos con mayores retrasos.
+
+```{r, eval = F}
+destinos <- flights %>% 
+  group_by(dest) %>%
+  summarise(retraso = mean(arr_delay, na.rm = T))
+
+inner_join(
+  airports, 
+  destinos,
+  by = c("faa" = "dest")
+) %>%
+  arrange(desc(retraso))
+```
+
+
+## joins: ejemplo con graficación
 
 Esto nos permite contestar preguntas aún más poderosas. Por ejemplo, podemos calcular el promedio de retrasos por destinos, juntar esa información con los datos de aeropuertos para dibujar la distribución espacial de los retrasos.
 
@@ -249,3 +398,6 @@ airports %>%
 ```
 
 Para más ejemplos como estos, revisa el capítulo de "[Relational data](http://r4ds.had.co.nz/relational-data.html)" en *R for data science*. 
+
+
+
