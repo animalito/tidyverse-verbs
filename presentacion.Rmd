@@ -399,5 +399,56 @@ airports %>%
 
 Para más ejemplos como estos, revisa el capítulo de "[Relational data](http://r4ds.had.co.nz/relational-data.html)" en *R for data science*. 
 
+## Datos limpios
 
+![](img/02_ciclo_2.png)
 
+## Datos limpios
+
+Los conjuntos de datos limpios (*tidy datasets*) permiten manipularlos facilmente, modelarlos y visualizarlos.
+
+Los datos limpios tienen una estructura especifica: 
+
+- cada variable es una columna, 
+- cada observacion una fila y,
+- cada tipo de unidad observacional forma una tabla
+
+En resumen: "cada valor ocupa su propia celda"
+
+![](img/datos_limpios.png)
+
+## Representaciones de los mismos datos
+
+Pensemos en unos datos:
+
+![](img/02_estructura.png)
+
+Su estructura "transpuesta":
+
+![](img/02_estructurat.png)
+
+Su estructura "tidy" o "limpia":
+
+![](img/02_estructuratidy.png)
+
+1. *persona* con tres posibles valores (John, Jane, Mary)
+2. *tratamiento* con dos posibles valores (a o b)
+3. *resultado* con 6 valores (-, 16, 3, 2, 11, 1)
+
+## Datos limpios: ejercicio
+
+- Crea un dataframe con los valores de la tabla 1 y otro con los valores de la tabla 3.
+- Extrae el resultado para (John Smith, tratamiento a) en la primera configuracion y en la segunda.
+- Especifica el numero de tratamientos con la forma sucia y la forma limpia.
+- ¿Cual es la media de los resultados? Usa la forma 1 y la forma 2.
+- Extrae los tratamientos del tipo a en la forma 2.
+
+## De sucio a limpio
+
+5 problemas comunes:
+
+1. Los nombres de las columnas son valores, no nombres de variables.
+2. MÃºltiples variables se encuentran en la misma columna.
+3. Las variables estÃ¡n guardadas tanto en filas como en columnas.
+4. Muchos tipos de unidad observacional se encuentran en la misma tabla.
+5. Una sola unidad observacional se guardÃ³ en varias tablas.
