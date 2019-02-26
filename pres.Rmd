@@ -1,5 +1,5 @@
 ---
-title: "Los verbos del Tidyverse"
+title: "Tidyverse en acción"
 output:
   slidy_presentation: default
   beamer_presentation: default
@@ -9,6 +9,8 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, error = F, message = F)
+library(readxl)
+library(tidyverse)
 ```
 
 ## El Tidyverse
@@ -35,13 +37,239 @@ Wickham, H y Grolemund G. [*R for Data Science*](http://r4ds.had.co.nz/explore-i
 
 ![](img/ciclo_paquetes.png)
 
-## El ciclo en paquetes (enfoque)
+## Importación
 
-![](img/ciclo_paquetes_enfoque.png)
+![](img/import.png)
+
+Paquetes útiles:
+
+* readr
+* readxl
+* haven
+* httr
+* jsonlite
+* DBI
+* rvest
+* xml2
+
+| Formato                 | Lectura                 | Escritura               |
+|-------------------------|-------------------------|-------------------------|
+| rds                     | base::readRDS | base::saveRDS |
+| separado por \*         | **readr::read_delim** |  **readr::write_delim** |
+| csv                     | **readr::read_csv** | **readr::write_csv** |
+| Microsoft Excel         | **readxl::read\_excel** | xlsx::write.xlsx |
+| dbf                     | foreign::read.dbf  | foreign::write.dbf    |
+| IBM SPSS                | **haven::read\_sav** | **haven::write\_sav** |
+| Stata                   | **haven::read\_dta** | foreign::write.dta |
+| SAS                     | **haven::read\_sas** | **haven::write\_sas** |
+| Google spreadsheet      | googlesheets::gs\_read | googlesheets::gs\_new |
+| Google bigquery         | bigrquery::query\_exec |                                       |
+
+- En **negritas** funciones del tidyverse.
+
+Los paquetes utilizados son (corre estos comandos en la consola):
+
+```{r}
+library(foreign)
+library(haven)
+library(readr)
+library(readxl)
+library(googlesheets)
+library(bigrquery)
+```
+
+**Importancia de rutas relativas**
+
+El comando `getwd()` regresa el directorio al cual `R` esta dirigido en este momento. 
+
+Una buena practica es considerar  el directorio de trabajo como el lugar en donde esta guardado el archivo o `script` en el que se trabaja y "moverse" desde ahí hasta el archivo que se quiere leer.
+
+```{r}
+getwd()
+```
+
+Y para moverse *una carpeta arriba", se utiliza `..` (es recurrente: `../../../`.
+
+Para moverse hacia adentro de la carpeta se escribe el nombre de la carpeta o archivo: `img/unaimagen.png`
+
+
+**Algunos ejemplos**
+
+**psv, tsv, etc**
+
+`readr::write_delim`
+
+```{r}
+misdatos <- mtcars
+write_delim(misdatos, path = "misdatos.psv", delim = "|")
+```
+
+```{r}
+misdatos <- read_delim(file = "misdatos.psv", delim = "|")
+# Los borramos
+file.remove("misdatos.psv")
+```
+
+**csv**
+
+`readr::write_csv`
+
+```{r}
+# readr
+write_csv(misdatos, path = "../misdatos.csv", na = "NA", append = FALSE)
+```
+
+Observa en el explorador de archivos en dónde es que se guardó el archivo
+`misdatos.csv`.
+
+Para **leerlos**, seguimos usando rutas relativas.
+
+```{r}
+# readr - como tibble
+misdatos <- read_csv("../misdatos.csv")
+
+# Lo borro
+file.remove("../misdatos.csv")
+```
+
+**SPSS**
+
+`haven::write_sav`
+
+Para **escribirlos**
+
+```{r}
+# haven
+write_sav(data = misdatos, path = "misdatos.sav")
+```
+
+Para **leerlos**
+
+```{r}
+# haven - como tibble
+misdatos <- read_sav(file = "misdatos.sav", user_na = FALSE)
+
+# Lo borro
+file.remove("misdatos.sav")
+```
+
+**Stata**
+
+`haven::read_dta`
+
+Para **escribirlos** en `Stata` primero tenemos que cambiar los nombres
+de las variables en el *data frame* pues `Stata` no admite puntos en los nombres:
+
+```{r}
+names(misdatos) <- tolower(gsub("\\.", "_", names(misdatos)))
+# foreign
+write.dta(data = misdatos, file = "~/misdatos.dta", version = 12)
+```
+
+Para **leerlos**
+
+```{r}
+# haven - como tibble
+misdatos <- read_dta(file = "~/misdatos.dta", encoding = NULL)
+
+# Lo borramos
+file.remove("~/misdatos.dta")
+```
+
+
+**Google Spreadsheet**
+
+Para hacer este ejercicio, debes tener una cuenta de `gmail`.
+
+Primero, debe realizarse la autenticación. Esto lo puedes hacer en cualquier sesión 
+interactiva utilizando alguna función del paquete `googlesheets`
+
+```{r, eval = FALSE}
+gs_ls()
+```
+
+Ahora, vamos a **escribir** una nueva hoja en tu cuenta. 
+
+```{r, eval = F}
+gs_new("misdatos", ws_title = "mihoja", input = head(iris)
+       , trim = TRUE, verbose = FALSE)
+```
+
+De igual forma, puedes ahora **leer** los datos de cualquier 
+`google spreadsheet` que tengas en tu cuenta. 
+
+```{r, eval = F}
+misdatos <- gs_read(gs_title("misdatos"), ws = "mihoja")
+# La borro
+gs_delete(gs_title("misdatos"))
+```
+
+
+
+## Importación / Material adicional
+
+- Libro base de este tutorial https://htmlpreview.github.io/?https://raw.githubusercontent.com/salimv19/ssR/master/aprendeR/importacion-de-datos.html
+- Datacamp:
+    - https://www.datacamp.com/courses/importing-data-in-r-part-1
+    - https://www.datacamp.com/courses/working-with-data-in-the-tidyverse
+- Cheatsheet https://www.rstudio.com/resources/cheatsheets/#import
+
+## Transformación
+
+![](img/transform.png)
 
 ## Los verbos básicos en `dplyr`
 
-![](img/verbos_basicos.png)
+```{r accionescomunes, echo=FALSE, results='hold'}
+dfTab <- data.frame(
+  a <- c("Extracción de **subconjuntos de observaciones**.",
+         "Extracción de **subconjuntos de variables**.",
+         "Creación de **resumenes de datos**.",
+         "Creación de **nuevas variables**.",
+         "**Combinación** de conjuntos de datos.",
+         "**Agrupar** datos.",
+         "**Reorganizar** datos (*reshape data*)."),
+  
+  b <- c(paste("<span>&#8226;</span> `filter`: seleccionamos filas de acuerdo a los valores de las variables<br>",
+         "<span>&#8226;</span>`distinct`: elimina renglones duplicados<br>",
+         "<span>&#8226;</span>`sample_frac`: selecciona aleatoriamente una fracción de filas<br>",
+         "<span>&#8226;</span>`sample_n`: selecciona aleatoriamente $n$ filas<br>",
+         "<span>&#8226;</span>`slice`: selecciona filas por posición<br>",
+         "<span>&#8226;</span>`top_n`: selecciona y ordena según una variable $n$ entradas", sep=""),
+         "<span>&#8226;</span>`select`: seleccionamos un subconjunto de las columnas utilizando los nombres de las variables",
+         paste("<span>&#8226;</span>`summarise`: resume los datos en un valor único<br>",
+               "<span>&#8226;</span>`summarise_all`: aplica una función de resumen para todas las columnas<br>",
+               "<span>&#8226;</span>`summarise_at`: afecta variables seleccionadas con un vector de caracteres o vars()<br>",
+               "<span>&#8226;</span>`summarise_if`: afecta variables seleccionadas con una función predicado<br>",
+               "<span>&#8226;</span>`count`: cuenta el número de filas con cada valor única de una variable", sep=""),
+         paste("<span>&#8226;</span>`mutate`: genera nuevas variables a partir de las variables originales<br>",
+               " <span>&#8226;</span>`mutate_all`: aplica una función ventana a cada columna<br>",
+               "<span>&#8226;</span>`transmute`: genera una o más nuevas columnas eliminando las columnas originales", sep=""),
+         paste("<span>&#8226;</span>`left_join`: realiza un join conservando todas las observaciones de la primera tabla especificada<br>",
+               "<span>&#8226;</span>`right_join`: realiza un join conservando todas las observaciones de la segunda tabla especificada<br>",
+               "<span>&#8226;</span>`inner_join`: realiza un join conservando todas las observaciones que están en ambas tablas<br>",
+               "<span>&#8226;</span>`full_join`: realiza un join conservando todas las observaciones y valores de ambas tablas<br>",
+               "<span>&#8226;</span>`semi_join`: conserva todas las observaciones de la primera tabla que están en la segunda tabla<br>",
+               "<span>&#8226;</span>`anti_join`: conserva todas las observaciones de la primera tabla que no están en la segunda tabla<br>",
+               "<span>&#8226;</span>`intersect`: conserva observaciones que están tanto en la primera tabla como en la segunda<br>",
+               "<span>&#8226;</span>`union`: conserva observaciones que están en cualesquier tabla<br>",
+               "<span>&#8226;</span>`setdiff`: conserva observaciones de la primera tabla que no están en la segunda<br>",
+               "<span>&#8226;</span>`bind_rows`: une las filas de la segunda tabla a las de la primera<br>",
+               "<span>&#8226;</span>`bind_cols`: une las columnas de la segunda tabla a las de la primera", sep=""),
+         paste("<span>&#8226;</span>`group_by`: agrupa los datos según una o más variables<br>",
+               "<span>&#8226;</span>`ungroup`: elimina los grupos en un data frame", sep=""),
+         paste("<span>&#8226;</span>`data_frame`: combina vectores en un dataframe<br>",
+               "<span>&#8226;</span>`arrange`: Ordena las filas según una o más variables<br>",
+               "<span>&#8226;</span>`rename`: renombra columnas de un dataframe", sep=""))
+)
+colnames(dfTab) <- c("Acción","Verbos")
+knitr::kable(
+  dfTab, booktabs = TRUE,
+  caption = 'Acciones y verbos comunes en la manipulación de datos [@datawrangling].'
+)
+```
+
+
 
 ## Los verbos básicos en acción (saquen su compu)
 
@@ -73,6 +301,28 @@ filter(flights, month == 1, day == 1)
  - Salen en invierno (Diciembre, Enero, Febrero)
  - ¿Son muy diferentes en -volúmen de vuelos- ambas estaciones?
  - ¿Cuántos vuelos tienen valores perdidos en `dep_time`?
+ 
+## filter: ejercicios / respuestas
+
+```{r}
+# Se retrasan más de 2 horas
+filter(flights, dep_delay > 120)
+
+# Salen en verano (Junio, Julio, Agosto)
+filter(flights, month %in% c(6, 7, 8))
+
+# Salen en invierno (Diciembre, Enero, Febrero)
+filter(flights, month %in% c(1, 2, 12))
+
+# ¿Son muy diferentes en -volúmen de vuelos- ambas estaciones?
+nrow(filter(flights, month %in% c(1, 2, 12)))
+nrow(filter(flights, month %in% c(6, 7, 8)))
+# R> No
+
+# ¿Cuántos vuelos tienen valores perdidos en `dep_time`?
+filter(flights, is.na(dep_time))
+```
+ 
  
 ## distinct
 
@@ -117,6 +367,22 @@ arrange(flights, desc(arr_delay))
 - ¿Cuáles son los vuelos más cortos?
 - ¿Cuáles son los más largos?
 
+## arrange: ejercicios / Respuestas
+
+```{r}
+# ¿Cuáles son los vuelos más cortos?
+arrange(flights, air_time) %>%
+  select(origin, dest, distance) %>%
+  distinct()
+
+# ¿Cuáles son los más largos?
+arrange(flights, desc(air_time)) %>%
+  select(origin, dest, distance) %>%
+  distinct()
+
+```
+
+
 ## top_n
 
 `dplyr` está lleno de funciones que particularizan a los verbos más sencillos. El ejercicio anterior, lo podemos obtener más fácilmente con la función `top_n`
@@ -155,6 +421,16 @@ select(flights, -(year:day))
 
 ¿De cuántas maneras puedo llamar a las variables `dep_time`, `dep_delay`, `arr_time`, `arr_delay`?
 
+## select: ejercicios / Respuestas
+
+```{r}
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+select(flights, starts_with("dep"), starts_with("arr"))
+select(flights, ends_with("delay"), ends_with("time")) # trae cosas de mas
+select(flights, matches("^arr_|^dep_"))
+```
+
+
 ## mutate
 
 Mutate te permite agregar nuevas variables que suelen ser funciones de otras columnas.
@@ -169,10 +445,51 @@ mutate(flights,
 
 ## mutate: ejercicios
 
-- Compara air_time contra (arr_time - dep_time). (Tip: *Usa mutate para crear una variable con la resta, después selecciona las variables a comparar.*)
-  - ¿Qué esperabas encontrar?
-  - ¿Hay algo que arreglar?
+1. Utiliza la función `str_sub` dentro de `stringr` para extraer únicamente el 
+día del campo `time_hour`.
+2. Utiliza la función `ymd` del paquete `lubridate` para declarar time_hour como una
+fecha (¡otra clase!).
+3. Compara air_time contra (arr_time - dep_time). (Tip: *Usa mutate para crear una variable con la resta, después selecciona las variables a comparar.*)
+4. ¿Qué esperabas encontrar?
+5. ¿Hay algo que arreglar?
+  
+## mutate: ejercicios / Respuestas
 
+```{r, cache=T}
+# 1 Utiliza la función `str_sub` dentro de `stringr` para extraer únicamente el día del campo `time_hour`
+mutate(flights, dia = stringr::str_sub(time_hour, 9, 10)) %>%
+    select(time_hour, dia)
+
+# 2 Utiliza la función `ymd` del paquete `lubridate` para declarar time_hour como una fecha (¡otra clase!).
+mutate(flights,
+       fecha = stringr::str_sub(time_hour, 1, 10)
+       , fecha = lubridate::ymd(fecha)) %>%
+    select(time_hour, fecha)
+
+
+# 3 Compara air_time contra (arr_time - dep_time). (Tip: *Usa mutate para crear una variable con la resta, después selecciona las variables a comparar.*)
+flights %>%
+  select(arr_time, dep_time, air_time) %>%
+  na.omit() %>%
+  mutate(tiempo = arr_time - dep_time) %>%
+  select(air_time, tiempo) -> diferencias
+
+diferencias
+
+ggplot(diferencias, aes(tiempo, air_time)) +
+  geom_point()
+
+# 4 ¿Qué esperabas encontrar?
+# Tiempos similares, no se estan considerando fecha, horas minutos
+
+# 5 ¿Hay algo que arreglar?
+# Del time_hour + dep_delay + air_time
+
+mutate(flights, 
+       time_hour_arr = time_hour + lubridate::minutes(dep_delay + air_time),
+       tiempo = time_hour_arr - time_hour) %>%
+  select(time_hour, time_hour_arr, air_time, tiempo)
+```
 
 ## mutate en esteroides: funciones ventana
 
@@ -189,7 +506,7 @@ Fuente: [Data wrangling cheatsheet](https://www.rstudio.com/wp-content/uploads/2
 Permite colapsar un data frame en una única fila "resumen"
 
 ```{r}
-summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
+dplyr::summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
 ```
 
 ## summarise: ejercicio
@@ -229,7 +546,7 @@ flights_agrupada
 Ahora si, puedo generar resumenes útiles por día. Por ejemplo, el retraso promedio por día:
 
 ```{r}
-summarise(flights_agrupada, delay = mean(dep_delay, na.rm = TRUE))
+dplyr::summarise(flights_agrupada, delay = mean(dep_delay, na.rm = TRUE))
 ```
 
 ## Los verbos y el group_by
@@ -242,6 +559,32 @@ summarise(flights_agrupada, delay = mean(dep_delay, na.rm = TRUE))
 - Utiliza la función `top_n`, junto con `group_by`, `arrange` y `summarise` para extraer los 10 aviones por aerolínea con el menor promedio de velocidad.
 - ¿Cuáles son los aeropuertos con mayor promedio de retraso en la salida?
 - ¿Cuáles son los aeropuertos con mayor promedio de retraso en las llegadas?
+
+## group_by: ejercicios / Respuestas
+
+```{r}
+#1
+# 10 aviones mas lentos por carrier
+mutate(flights, velocidad = distance/air_time) %>%
+    group_by(carrier) %>%
+    arrange(velocidad) %>%
+    top_n(-10) %>%
+    select(tailnum, carrier, velocidad) %>%
+    ungroup() %>%
+    arrange(carrier, velocidad) %>%
+    head(20)
+
+#2 aeropuerto con mayor promedio de retraso de salida
+group_by(flights, origin) %>%
+  dplyr::summarise(dep_delay = mean(dep_delay, na.rm = T)) %>%
+  arrange(desc(dep_delay))
+
+#3 aeropuerto con mayor promedio de retraso de llegada
+group_by(flights, dest) %>%
+  dplyr::summarise(arr_delay = mean(arr_delay, na.rm = T)) %>%
+  arrange(desc(arr_delay))
+```
+
 
 ## %>%
 
@@ -276,43 +619,28 @@ flights %>%
 
 1. ¿Cuál es la hora óptima para viajar para evitar retrasos?
 2. Encuentra todos los destinos que vuelan por más de una aerolínea. ¿Cuál es la mejor aerolínea en ese subgrupo?
-3. ¿Cuáles son los 10 aviones-aerolíneas mas lentos? Utiliza el operador pipe, mutate, arrange y head.
-4. Utiliza la función `str_sub` dentro de `stringr` para extraer únicamente el día del campo `date`.
-5.  Utiliza la funcion `ymd` del paquete `lubridate` para declarar date como una fecha.
-6. Utiliza las funciones `paste0` del `base` y `ymd_hm` de `lubridate` para
-declarar date como un `datetime`.
 
-```{r, eval = F, echo = F}
-# Respuestas *ultimas()
+## %>%: ejercicios / Respuestas
 
-#3
-mutate(flights, velocidad = dist/time) %>%
-    arrange(velocidad) %>%
-    head(10) %>%
-    select(plane, carrier, velocidad)
+```{r}
+# 1. ¿Cuál es la hora óptima para viajar para evitar retrasos?
+flights %>%
+  group_by(hour) %>%
+  dplyr::summarise(dep_delay = mean(dep_delay, na.rm = T)) %>%
+  arrange(dep_delay)
 
-# o bien
-mutate(flights, velocidad = dist/time) %>%
-    group_by(carrier) %>%
-    arrange(velocidad) %>%
-    top_n(1) %>%
-    select(plane, carrier, velocidad)
-
-#4
-mutate(flights, dia = stringr::str_sub(date, 9, 10)) %>%
-    select(date, dia)
-head(flights)
-
-# 5
-mutate(flights,
-       fecha = stringr::str_sub(date, 1, 10)
-       , fecha = lubridate::ymd(fecha)) %>%
-    select(date, fecha)
-
-# 6
-mutate(flights,
-       fecha = lubridate::ymd_hms(date)) %>%
-    select(date, fecha)
+# 2. Encuentra todos los destinos que vuelan por más de una aerolínea. ¿Cuál es la mejor aerolínea en ese subgrupo?
+flights %>%
+  group_by(dest, carrier) %>%
+  dplyr::summarise(
+    air_time = mean(air_time, na.rm = T)
+  ) %>%
+  ungroup() %>%
+  group_by(dest) %>%
+  mutate(n = n()) %>%
+  filter(n > 1) %>%
+  arrange(dest, air_time) %>%
+  top_n(-1, wt = air_time)
 
 ```
 
@@ -358,7 +686,7 @@ tenemos en nuestros datos para todos sus vuelos.
 library(nycflights13)
 vel_aviones <- flights %>% 
   group_by(tailnum) %>% # identificador de avion
-  summarise(vel_prom = mean(distance/air_time, na.rm = T))
+  dplyr::summarise(vel_prom = mean(distance/air_time, na.rm = T))
   
 inner_join(
   planes,
@@ -373,7 +701,7 @@ Ahora, queremos saber los destinos con mayores retrasos.
 ```{r}
 destinos <- flights %>% 
   group_by(dest) %>%
-  summarise(retraso = mean(arr_delay, na.rm = T))
+  dplyr::summarise(retraso = mean(arr_delay, na.rm = T))
 
 inner_join(
   airports, 
@@ -398,6 +726,77 @@ airports %>%
 ```
 
 Para más ejemplos como estos, revisa el capítulo de "[Relational data](http://r4ds.had.co.nz/relational-data.html)" en *R for data science*. 
+
+## joins: ejercicios
+
+1. ¿Cuáles son los aeropuertos que SI están en la base de destinos?
+2. ¿Cuáles son los aeropuertos que NO están en la base de destinos?
+3. Realiza un resumen de los vuelos por aeropuerto para varias variables con la función `summarise`.
+4. Utiliza la función `inner_join` para pegar la tablas de resumen creada en el paso anterior a la tabla `airports`
+5. Realiza un resumen de los vuelos por avión para varias variables con la función `summarise`.
+6. Utiliza la función `left_join` para pegar la tablas de resumen creada en el paso anterior a la tabla `planes`
+7. Extrae el porcentaje de vuelos cancelados por aerolínea cada año y el porcentaje de vuelos retrasados por aerolínea cada año.
+
+## joins: ejercicios / Respuestas
+
+```{r}
+# 1 ¿Cuáles son los aeropuertos que SI están en la base de destinos?
+semi_join(airports, flights, by = c("faa" = "dest"))
+
+# 2 ¿Cuáles son los aeropuertos que NO están en la base de destinos?
+anti_join(airports, flights, by = c("faa" = "dest"))
+
+# 3 Realiza un resumen de los vuelos por aeropuerto para varias variables con la función `summarise`.
+res.vuelos <- flights %>%
+  group_by(dest) %>%
+  dplyr::summarise(
+    flights = n()
+    , planes = n_distinct(tailnum)
+    , carriers = n_distinct(carrier)
+    , dep_delay_mean = mean(dep_delay, na.rm = T)
+  )
+
+# 4 Utiliza la función `inner_join` para pegar la tablas de resumen creada en el paso anterior a la tabla `airports`
+airports_flights <- inner_join(airports, res.vuelos
+                               , by = c("faa" = "dest"))
+
+# 5 Realiza un resumen de los vuelos por avión para varias variables con la función `summarise`.
+res.aviones <- flights %>%
+  group_by(tailnum) %>%
+  dplyr::summarise(
+    flights = n()
+    , carriers = n_distinct(carrier)
+    , dep_delay_mean = mean(dep_delay, na.rm = T)
+    , arr_delay_mean = mean(arr_delay, na.rm = T)
+    , dist_mean = mean(distance, na.rm = T)
+    , vel_mean = mean(distance/air_time, na.rm = T)
+  ) 
+
+# 6 Utiliza la función `left_join` para pegar la tablas de resumen creada en el paso anterior a la tabla `planes`
+planes_flights <- left_join(planes, res.aviones)
+
+# 7 Extrae el porcentaje de vuelos cancelados por aerolínea cada año y el porcentaje de vuelos retrasados por aerolínea cada año.
+flights %>%
+  mutate(
+    cancelled = ifelse(is.na(dep_time), T, F),
+    anio = lubridate::year(time_hour)) %>%
+  group_by(carrier, anio) %>%
+  dplyr::summarise(
+    vuelos.anuales = n()
+    , cancelados = sum(cancelled, na.rm = T)/vuelos.anuales * 100
+    , retrasados = sum(dep_delay > 0, na.rm = T)/vuelos.anuales * 100
+  ) %>%
+  ungroup()
+```
+
+## dplyr / material adicional
+
+- Cheatsheet https://www.rstudio.com/resources/cheatsheets/#dplyr
+- Libro base de este tutorial: https://htmlpreview.github.io/?https://raw.githubusercontent.com/salimv19/ssR/master/aprendeR/transformacion-de-datos.html
+- Curso de swirl Getting and cleaning data.
+- Curso Cleaning Data in R de Data Camp.
+- Curso Data Manipulation in R with dplyr de Data Camp.
+- Curso Joining data in R with dplyr de Data Camp
 
 ## Datos limpios
 
@@ -442,6 +841,56 @@ Su estructura "tidy" o "limpia":
 - Especifica el numero de tratamientos con la forma sucia y la forma limpia.
 - ¿Cual es la media de los resultados? Usa la forma 1 y la forma 2.
 - Extrae los tratamientos del tipo a en la forma 2.
+
+## Datos limpios: ejercicio 2
+
+Este tipo de formato de datos (poner valores de variables en las columnas) 
+es útil también cuando se capturan datos al evitar la repetición de valores.
+
+Por ejemplo, pensemos en un experimento clínico en el que seguimos a sujetos
+a lo largo de un tratamiento midiendo su IMC. Una forma muy
+sencilla de guardar los datos del experimento es utilizando un procesador
+de texto común. El capturista no querrá seguir criterios de datos limpios
+al llenar la información pues implicaría repetir el nombre de la persona,
+el día de la captura y el nivel de colesterol. 
+
+Supongamos un experimento con
+16 sujetos a lo largo de un año en donde se mide el colesterol una vez al mes (mes1, mes2, etc.). Los datos capturados se muestran en la tabla. 
+
+```{r}
+# Generación aleatoria de datos
+df <- data.frame(
+  sujetos = LETTERS[1:16],
+  grupo = sample(c("control", "tratamiento"), size = 16, replace = T
+                 , prob = c(0.5, 0.5))
+  )
+m <- t(sapply(runif(16, 16, 35), FUN = function(x){
+  cumsum(c(x, rnorm(11, mean = 0.5, sd = 1)))
+  }))
+colnames(m) <- paste0("mes",1:12)
+df <- cbind(df, m)
+
+knitr::kable(df, 
+caption = 'Mediciones de IMC en sujetos.'
+) 
+```
+
+
+Nuevamente, queremos convertir la columna 3 a 14 en filas, es decir, observaciones.
+Utiliza el comando `gather` para realizar esto y obtener el resultado que se
+muestra en la tabla
+
+## Datos limpios: ejercicio / Respuestas
+
+```{r}
+# Respuesta
+opcion1 <- tidyr::gather(df, key = mes, value = IMC, -sujetos, -grupo)
+opcion2 <- tidyr::gather(df, key = mes, value = IMC, mes1:mes12)
+knitr::kable(sample_n(opcion2, size = 10), booktabs = TRUE,
+caption = 'Muestra de datos limpios para experimentos IMC.'
+)
+```
+
 
 ## De sucio a limpio
 
@@ -536,6 +985,33 @@ pob <- tibble(
 ## Tu respuesta>
 
 ```
+
+## gather: ejercicio / Respuesta
+
+```{r}
+# Respuestas
+# Generamos los datos
+pob <- tibble(
+  id = 1:1000
+  , variables = paste0(
+    sample(x = c('f', 'm'), size = 1000, replace = T)
+    , "_"
+    , floor(runif(1000, 45, 99))
+    , "_"
+    , floor(runif(1000, 50, 190))
+  )
+)
+# Utilizamos separate para generar las variables:
+# sexo, año de nacimiento y altura
+pob.tidy <- pob %>%
+  separate(col = variables
+           , into = c("sexo", "anio_nac", "altura"), sep = "_")
+
+# Pasamos a enteros las variables anio de nac y altura
+pob.tidy %>%
+  mutate_each(funs(as.integer), anio_nac, altura)
+```
+
 
 ## Las variables están guardadas tanto en filas como en columnas
 
@@ -682,7 +1158,77 @@ Los datos están divididos en los archivos `M2_218.xlsx` y
 ![](img/ejercicio_tidy_informe.png)
 
 El ejercicio consiste en leer los datos y limpiarlos de forma que sean datos
-limpios. Los datos fueron tomados de datos.gob.mx y el catalogo de estados de INEGI.
+limpios. Los datos fueron tomados de `datos.gob.mx` y el catalogo de estados de INEGI.
+
+## Ejercicio final / Respuestas
+
+```{r}
+# Respuesta
+rm(list = ls())
+# Funciones auxiliares
+# Como son archivos de excel, muchas líneas están vacias pero R no 
+# lo entiende. Esta función quita esas lineas.
+quita.nas <- function(df, prop.na = 0.8) {
+  df <- df[, !is.na(names(df)) & names(df) != ""]
+  r <- sapply(seq(nrow(df)), FUN = function(x){
+    sum(is.na(df[x,]))
+  })
+  r <- r/ncol(df)
+  df[r < prop.na, ]
+}
+# Como pegaremos estados a partir de sus nombres (y no una clave)
+# Esta función limpia los nombres de los estados
+limpia <- function(nn) {
+  gsub("\\s+", " ", stringr::str_trim(nn)) %>%
+    gsub("^ *|(?<= ) | *$", "", ., perl=T) %>%
+    iconv(., to='ASCII//TRANSLIT') %>%
+    tolower(.)
+}
+## Funcion para pegar la clave del estado a partir del nombre
+pega.estados <- function(df, nombres = "entidad") {
+  df$pega <- limpia(df[[nombres]])
+  
+  d <- rbind(readRDS("tidyr_datasets/informe/estados_p.rds"),
+             data.frame(
+               estado = c("00", "00", "30", "16", "15", "05")
+               , pega = c("nacional", "total nacional", "veracruz"
+                          , "michoacan", "estado de mexico", "coahuila")
+               , stringsAsFactors = F
+             )
+  )
+  
+  dd <- dplyr::left_join(df, d)
+  dplyr::select(dd, -pega)
+}
+# Limpieza de datos
+df <- read_excel("tidyr_datasets/informe/M2_218.xlsx", skip = 4
+                 , col_names = T) 
+names(df) <- c('entidad', paste0('imss_', 2000:2008)
+               , paste0('issste_', 2000:2008))
+df <- df %>%
+  quita.nas(.) %>%
+  pega.estados(.) %>%
+  tidyr::gather(., key = variable, value = valor, -entidad
+                , -estado, na.rm = T) %>%
+  tidyr::separate(variable, c("indicador", "anio"), extra = "drop") %>%
+  dplyr::mutate(indicador = paste0("pago_pensiones_", indicador))
+all <- df
+df <- read_excel("tidyr_datasets/informe/M2_219.xlsx", skip = 4
+                 , col_names = T) 
+names(df) <- c('entidad', paste0('imss_', 2009:2016)
+               , paste0('issste_', 2009:2016))
+df <- df %>%
+  quita.nas(.) %>%
+  pega.estados(.) %>%
+  tidyr::gather(., key = variable, value = valor, -entidad
+                , -estado, na.rm = T) %>%
+  tidyr::separate(variable, c("indicador", "anio")
+                  , extra = "drop") %>%
+  dplyr::mutate(indicador = paste0("pago_pensiones_", indicador))
+all <- rbind(all, df)
+all
+```
+
 
 ## Material adicional
 
