@@ -31,11 +31,11 @@ install.packages("nycflights13") # Provee los datos que usaremos en ejemplos y e
 
 Wickham, H y Grolemund G. [*R for Data Science*](http://r4ds.had.co.nz/explore-intro.html)
 
-![](img/ciclo.png)
+![](img/ciclo.PNG)
 
 ## El ciclo en paquetes
 
-![](img/ciclo_paquetes.png)
+![](img/ciclo_paquetes.PNG)
 
 ## Importación
 
@@ -270,7 +270,6 @@ knitr::kable(
 ```
 
 
-
 ## Los verbos básicos en acción (saquen su compu)
 
 ```{r}
@@ -495,7 +494,7 @@ mutate(flights,
 
 Hay muchas funciones auxiliares dentro de  `dplyr` que te permiten aprovechar más al verbo `mutate`. Por ejemplo, tiene implementado varias funciones ventana:
 
-![](img/window_functions.png)
+![](img/window_functions.PNG)
 
 Estas funciones son mucho más útiles en *grupos* (ahí viene).
 
