@@ -11,6 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = T, warning = F, error = F, message = F)
 library(readxl)
 library(tidyverse)
+library(nycflights13)
 ```
 
 ## El Tidyverse
@@ -23,8 +24,8 @@ library(tidyverse)
 install.packages("tidyverse") # colección de paquetes
 
 # Instalen tambien
-install.packages("vcdExtra") # Provee de datasets, métodos y documentación adicionales
 install.packages("nycflights13") # Provee los datos que usaremos en ejemplos y ejercicios
+install.packages("maps") # Permite hacer mapas
 ```
 
 ## El ciclo de análisis de datos
@@ -63,7 +64,6 @@ Paquetes útiles:
 | Stata                   | **haven::read\_dta** | foreign::write.dta |
 | SAS                     | **haven::read\_sas** | **haven::write\_sas** |
 | Google spreadsheet      | googlesheets::gs\_read | googlesheets::gs\_new |
-| Google bigquery         | bigrquery::query\_exec |                                       |
 
 - En **negritas** funciones del tidyverse.
 
@@ -75,7 +75,6 @@ library(haven)
 library(readr)
 library(readxl)
 library(googlesheets)
-library(bigrquery)
 ```
 
 **Importancia de rutas relativas**
@@ -274,10 +273,9 @@ knitr::kable(
 
 ```{r}
 library(nycflights13)
-library(vcdExtra)
 library(tidyverse)
 # Tablas con datos para ejercicios
-datasets("nycflights13")
+data(package = "nycflights13")
 
 # Tabla para los ejercicios iniciales
 flights
@@ -656,7 +654,7 @@ Para ello, debo juntar información de otras de las bases que están en el paque
 Recordemos las tablas en el paquete:
 
 ```{r}
-datasets("nycflights13")
+data(package = "nycflights13")
 ```
 
 El modelo de relación de las tablas se ve como sigue:
